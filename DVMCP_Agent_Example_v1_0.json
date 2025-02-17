@@ -34,11 +34,14 @@
         "includeOtherFields": true,
         "options": {}
       },
-      "id": "18092842-7875-4afc-a0ef-389903fed640",
+      "id": "59b695bf-f8c7-482e-851a-a38a38e5cebf",
       "name": "Set Variables",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [4120, -1260]
+      "position": [
+        1220,
+        260
+      ]
     },
     {
       "parameters": {
@@ -47,21 +50,27 @@
         "transformTo": "hexpubkey",
         "transformInput": "={{ $json.assistantNpub }}"
       },
-      "id": "e292e332-9a14-4c82-a483-bcbc85cb7027",
+      "id": "7404e089-b0f9-4e26-87f1-509cc93c4ad6",
       "name": "Transform Assistant Npub",
       "type": "n8n-nodes-nostrobots.nostrobotsutils",
       "typeVersion": 1,
-      "position": [4420, -1260]
+      "position": [
+        1520,
+        260
+      ]
     },
     {
       "parameters": {
         "options": {}
       },
-      "id": "45806dd9-2e88-4834-9b90-5569fc5da0c0",
+      "id": "70bef877-c965-4beb-8040-56614419562c",
       "name": "When chat message received",
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.1,
-      "position": [3760, -1180],
+      "position": [
+        860,
+        340
+      ],
       "webhookId": "fc8f6baf-f5cf-4952-a011-56de820962c2"
     },
     {
@@ -71,14 +80,17 @@
           "responseFormat": "json_object"
         }
       },
-      "id": "0c8b5c57-854e-4daa-9f9c-04d8fb686ddb",
+      "id": "781f3a53-3244-4a8c-b5a6-a2c371f45d87",
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1,
-      "position": [4120, -700],
+      "position": [
+        1220,
+        820
+      ],
       "credentials": {
         "openAiApi": {
-          "id": "6IgmhcTJzImWKOfe",
+          "id": "6Qv9cuxLJxXrfTh6",
           "name": "OpenAi account"
         }
       }
@@ -87,25 +99,31 @@
       "parameters": {
         "options": {}
       },
-      "id": "92179680-fab8-4058-8162-2d714404e56d",
+      "id": "34136f93-79b3-4dcf-985f-54d4a89737f4",
       "name": "Search Engine",
       "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
       "typeVersion": 1,
-      "position": [4560, -700],
+      "position": [
+        1660,
+        820
+      ],
       "credentials": {
         "serpApi": {
-          "id": "0eb5Kdvm7Cwqz61e",
+          "id": "JLxEDvTooSeCySo7",
           "name": "SerpAPI account"
         }
       }
     },
     {
       "parameters": {},
-      "id": "b22ad0d0-5c01-476d-a4ee-1cc2a13a3c34",
+      "id": "f185c1d9-c8ba-4404-8e02-bad917195dc0",
       "name": "Calculator",
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
       "typeVersion": 1,
-      "position": [4720, -700]
+      "position": [
+        1820,
+        820
+      ]
     },
     {
       "parameters": {
@@ -113,16 +131,19 @@
         "description": "=This tool queries Nostr for tools provided by Model Context Protocol (MCP) servers. These are surfaced by Data Vending Machines (DVMs). They are declared as available with a NIP-89 event of kind 31990 with #k tag of 5910.\n\nThis tool allows you to read NIP-89 declarations in order to find what tools are available.\n\nThe tool accepts no parameters.\n\n**Tips for DVM Use**\n\n- If a User requests something where you do not have a tool, query for DVM MCP server tools, and ask the User if you should use the tool.\n\n- If a User requests to use a tool, follow these steps in sequence\n1) post your request to the MCP server\n2) wait for 15 seconds\n3) read the response from the MCP server\n4) if there is no response from the MCP server and less than 45 seconds have passed –\nThen go back to step 2 and repeat.\nElse continue.\n5) perform any final steps or required localisation (e.g. query forex and convert USD to local currency)",
         "workflowId": {
           "__rl": true,
-          "value": "rQ0rJszl0YHO1L5J",
+          "value": "IWL1fFSJANYoVN6h",
           "mode": "list",
-          "cachedResultName": "AI Tool – Find Nostr DVMCP Server"
+          "cachedResultName": "AI Tool – Find Nostr DVMCP Servers"
         }
       },
-      "id": "0a19492f-172c-4efe-96c4-7736c6c9dab6",
+      "id": "d95bdd06-574f-4629-8b56-8e3511937424",
       "name": "Find DVMCP Tools",
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 1.2,
-      "position": [5040, -700]
+      "position": [
+        2140,
+        820
+      ]
     },
     {
       "parameters": {
@@ -130,16 +151,19 @@
         "description": "=Posts a request to use an Model Context Protocol (MCP) server surfaced over Nostr as a Data Vending Machine (DVM).\n\nUse tools in sequence\n- FindNostrDVMCPTool to find server query syntax\n- PostNostrDVMCPQueryTool to request server tool use\n- ReadNostrDVMCPResponseTool to read server response\n\n```\n{\n  \"content\": {\n    \"name\": \"tool name\",\n    \"parameters\": {\n      \"parameter1\": \"value1\",\n      \"parameter2\": \"value2\"\n    }\n  },\n  \"kind\": 5910,\n  \"tags\": [\n    [\"c\", \"execute-tool\"],\n    [\"p\", \"pubkey of server\"]\n  ]\n}\n```\n\nFor example:\n\n```\n{\n  \"content\": {\n    \"name\": \"get-crypto-price\",\n    \"parameters\": {\n      \"symbol\": \"ETH\"\n    }\n  },\n  \"kind\": 5910,\n  \"tags\": [\n    [\"c\", \"execute-tool\"],\n    [\"p\", \"85a319...71d36a\"]\n  ]\n}\n```\n\nUsage tips. Specify:\n\n- for the server `[\"p\", \"85a319...71d36a\"]`\n- a request `\"kind\": 5910`\n- to execute tool `[\"c\", \"execute-tool\"]`\n- with `\"name\": \"tool name\",`\n- with parameters `\"parameters\": { \"parameter1\": \"value1\" }`",
         "workflowId": {
           "__rl": true,
-          "value": "LyjEXXfQTnABgJsb",
+          "value": "xoYV2tLPBDd0Stgv",
           "mode": "list",
-          "cachedResultName": "AI Tool – Post Nostr DVMCP Server Query"
+          "cachedResultName": "AI Tool – Post Nostr DVMCP Server Query"
         }
       },
-      "id": "ad7b6e46-4dcd-4408-aeae-9851298dcf33",
+      "id": "a511b74f-94a2-4f9d-8c60-a8f4acaf5efd",
       "name": "Post Query to DVMCP Tool",
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 1.2,
-      "position": [5200, -700]
+      "position": [
+        2300,
+        820
+      ]
     },
     {
       "parameters": {
@@ -147,16 +171,19 @@
         "description": "=Reads a Response fom a Model Context Protocol (MCP) server surfaced over Nostr as a Data Vending Machine (DVM).\n\nUse tools in sequence\n- FindNostrDVMCPTool to find server query syntax\n- PostNostrDVMCPQueryTool to request server tool use\n- ReadNostrDVMCPResponseTool to read server response\n\n```\n{\n  \"kinds\":[6910,7000],\n  \"#e\":[\"the eventId of your PostNostrDVMCPQueryTool response\"]\n}\n```\n\nFor example:\n\n```\n{\n  \"kinds\":[6910,7000],\n  \"#e\":[\"41619f...382f96\"]\n}\n```\n\nResponse kinds:\n\n- 6910 is success, with response as `content`\n- 7000 is for other messages, such as\n-- status updates\n-- errors\n-- requests for further information\n\nUsage tips:\n\n- for the query `\"#e\":[\"41619f...382f96\"]`\n\nIn response to kind 7000 notes, you may:\n\n- wait and try again with ReadNostrDVMCPResponseTool\n- vary query and try again with PostNostrDVMCPQueryTool\n- inform the user",
         "workflowId": {
           "__rl": true,
-          "value": "2lt2kqZMvjtjSrXS",
+          "value": "wsCTqHJdHw9z83Ju",
           "mode": "list",
-          "cachedResultName": "AI Tool – Read Nostr DVMCP Response"
+          "cachedResultName": "AI Tool – Read Nostr DVMCP Server Response"
         }
       },
-      "id": "38bdd9ae-9313-4848-b485-d3b74bc3fea1",
+      "id": "7590aec3-674e-40c5-a6d4-632e1772d490",
       "name": "Read Response from DVMCP Tool",
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 1.2,
-      "position": [5280, -540]
+      "position": [
+        2380,
+        980
+      ]
     },
     {
       "parameters": {
@@ -164,27 +191,33 @@
         "description": "=Use this tool to wait between using other tools.\n\nE.g. query this tool after Posting a Nostr DVM MCP Query, and prior to Reading a Nostr DVM MCP Response, in order to give the MCP Server time to respond.\n\nQuery the tool with the number of seconds you would like to wait.\n\nE.g. `{ \"query\":5 }` will wait 5 seconds.\n\n",
         "workflowId": {
           "__rl": true,
-          "value": "VhO1zPQKxfJckTOr",
+          "value": "Th5Fr0jlx25QGhC8",
           "mode": "list",
-          "cachedResultName": "AI Tool – Wait"
+          "cachedResultName": "AI Tool – Wait"
         }
       },
-      "id": "2edb31bb-9601-49c2-b99b-1c2e8791a136",
+      "id": "91949620-0321-411b-bd95-7ecc7fdd14e9",
       "name": "Wait",
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 1.2,
-      "position": [5120, -540]
+      "position": [
+        2220,
+        980
+      ]
     },
     {
       "parameters": {
         "schemaType": "manual",
         "inputSchema": "{\n  \"anyOf\": [\n    {\n      \"type\": \"object\",\n      \"properties\": {\n        \"message\": { \"type\": \"string\" },\n        \"memory\": { \"type\": \"string\" }\n      },\n      \"required\": [\"message\", \"memory\"],\n      \"additionalProperties\": false\n    },\n    {\n      \"type\": \"object\",\n      \"properties\": {\n        \"output\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"message\": { \"type\": \"string\" },\n            \"memory\": { \"type\": \"string\" }\n          },\n          \"required\": [\"message\", \"memory\"],\n          \"additionalProperties\": false\n        }\n      },\n      \"required\": [\"output\"],\n      \"additionalProperties\": false\n    }\n  ]\n}\n"
       },
-      "id": "10a874a1-457c-4bd6-9321-3db1ab25b2d8",
+      "id": "c45d900f-152d-4ab0-884b-5141af06dceb",
       "name": "Structured Output Parser",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
-      "position": [5820, -540]
+      "position": [
+        2920,
+        980
+      ]
     },
     {
       "parameters": {
@@ -260,11 +293,14 @@
         },
         "options": {}
       },
-      "id": "16a73cee-2965-4456-9e13-53d391feedf0",
+      "id": "c5106c59-e9bf-4910-b5b8-a8f07ff160fb",
       "name": "Finalise Input",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [4600, -1260]
+      "position": [
+        1700,
+        260
+      ]
     },
     {
       "parameters": {
@@ -280,25 +316,31 @@
         },
         "options": {}
       },
-      "id": "f452092e-8c36-49a5-85db-1b4d751c5b95",
+      "id": "024ea763-53f9-4ed8-9a7f-2b1cffbf7e4d",
       "name": "Set Output",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [5300, -1260]
+      "position": [
+        2400,
+        260
+      ]
     },
     {
       "parameters": {
         "sessionIdType": "customKey",
         "sessionKey": "={{ $('Set Variables').item.json.sessionId }}"
       },
-      "id": "49836b24-52c0-460d-9461-234f85161371",
+      "id": "6d50e866-98ca-4249-b673-03c10f1342e7",
       "name": "Supabase Chat Memory",
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.1,
-      "position": [5560, -700],
+      "position": [
+        2660,
+        820
+      ],
       "credentials": {
         "postgres": {
-          "id": "w4X3cxc0ZlLqCVnk",
+          "id": "MN80LXi8bym1Ltgq",
           "name": "Postgres account"
         }
       }
@@ -308,14 +350,17 @@
         "model": "gpt-4o",
         "options": {}
       },
-      "id": "62a5eefe-47a9-43b0-a31f-454a0bb3d58a",
+      "id": "acf5d97a-8646-4a15-b877-cb9848696ff3",
       "name": "OpenAI to Parse Output",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1,
-      "position": [5660, -540],
+      "position": [
+        2740,
+        980
+      ],
       "credentials": {
         "openAiApi": {
-          "id": "6IgmhcTJzImWKOfe",
+          "id": "6Qv9cuxLJxXrfTh6",
           "name": "OpenAi account"
         }
       }
@@ -326,11 +371,14 @@
         "height": 611.5771043771053,
         "width": 453.7643097643098
       },
-      "id": "e45888ef-2d6a-44fb-a486-8d4bd3083e66",
+      "id": "ff00226c-9498-4eaf-bb9b-19f189258192",
       "name": "Sticky Note",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [3940, -960]
+      "position": [
+        1040,
+        560
+      ]
     },
     {
       "parameters": {
@@ -339,11 +387,14 @@
         "width": 457.10437710437714,
         "color": 2
       },
-      "id": "44405bb1-bd4b-49cb-bc36-797f42fd31bd",
+      "id": "360527c1-08d8-466e-af69-fc1e8c0dbecd",
       "name": "Sticky Note1",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [4460, -960]
+      "position": [
+        1560,
+        560
+      ]
     },
     {
       "parameters": {
@@ -352,11 +403,14 @@
         "width": 457.10437710437714,
         "color": 6
       },
-      "id": "efc5ad42-6a82-4c47-8369-85e7979037a2",
+      "id": "f8ebe2f5-8a8b-4c75-8c9a-583e39ea70a8",
       "name": "Sticky Note2",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [4980, -960]
+      "position": [
+        2080,
+        560
+      ]
     },
     {
       "parameters": {
@@ -365,11 +419,14 @@
         "width": 457.10437710437714,
         "color": 5
       },
-      "id": "d883f23e-69a9-4def-abcc-be084001ea25",
+      "id": "3f4790ce-d08d-4483-9982-e88fed7eb62f",
       "name": "Sticky Note3",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [5500, -960]
+      "position": [
+        2600,
+        560
+      ]
     },
     {
       "parameters": {
@@ -379,11 +436,14 @@
           "returnIntermediateSteps": true
         }
       },
-      "id": "af3412fb-24c4-4dff-a568-08121d65e500",
+      "id": "a2ddb4d0-3a0b-497d-8837-2fe74599b33a",
       "name": "AI Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
-      "position": [4820, -1260]
+      "position": [
+        1920,
+        260
+      ]
     },
     {
       "parameters": {
@@ -392,11 +452,14 @@
         "width": 316,
         "color": 7
       },
-      "id": "83243c98-358e-4c85-a45c-f3f5fe659992",
+      "id": "95ca7e69-2cd6-4ad9-b9be-b4a0dbff840d",
       "name": "Sticky Note6",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [4020, -1520]
+      "position": [
+        1120,
+        0
+      ]
     },
     {
       "parameters": {
@@ -405,11 +468,14 @@
         "width": 315.5258187768896,
         "color": 7
       },
-      "id": "8eb76f87-29ec-42f4-bbaa-25dd96e73391",
+      "id": "1e3e40c0-2dd9-4fc2-90a7-bbb524cd46fa",
       "name": "Sticky Note7",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [3660, -1520]
+      "position": [
+        760,
+        0
+      ]
     },
     {
       "parameters": {
@@ -417,8 +483,11 @@
       },
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
-      "position": [3760, -1340],
-      "id": "c19897cf-9492-4a4c-9e34-2b354f62d5c7",
+      "position": [
+        860,
+        180
+      ],
+      "id": "a81ceef1-4e2b-4a52-8d4a-7e048809bb94",
       "name": "When Executed by Another Workflow"
     },
     {
@@ -427,8 +496,11 @@
       },
       "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
       "typeVersion": 1,
-      "position": [5660, -700],
-      "id": "e6880110-df59-4a95-bb4c-dbe44d95b7d6",
+      "position": [
+        2760,
+        820
+      ],
+      "id": "bd6bca02-a7b7-413c-af5f-9d9bcf245d7a",
       "name": "Auto-fixing Output Parser"
     },
     {
@@ -438,11 +510,14 @@
         "width": 723,
         "color": 6
       },
-      "id": "f77a0c0b-c328-4550-bbae-d41d15390302",
+      "id": "23117f83-bf72-4355-8b0b-cdcd6e0df865",
       "name": "Sticky Note4",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [2900, -1520]
+      "position": [
+        0,
+        0
+      ]
     }
   ],
   "pinData": {},
@@ -639,24 +714,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "accc2456-c08c-4c15-89f1-050fb8d4066a",
+  "versionId": "4924a3d0-2150-42c6-9dd1-bb983cb0fd9d",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "116b49d6f3394f8a5d690ef016c12ee9efff737700b050bfcafac43155fb279c"
+    "instanceId": "ac457ba9c7beed854dfa6bead690f41020baceb768b5b0a19a85845c698f4a3e"
   },
-  "id": "3w23XwQy5h4OKIlT",
-  "tags": [
-    {
-      "createdAt": "2025-01-16T05:24:37.598Z",
-      "updatedAt": "2025-01-16T05:24:37.598Z",
-      "id": "J7nZF3KKJibJtOn6",
-      "name": "AI"
-    },
-    {
-      "createdAt": "2024-11-19T03:08:10.445Z",
-      "updatedAt": "2024-11-19T03:08:23.808Z",
-      "id": "egAJeVFA9DrO3YrB",
-      "name": "AI Assistant"
-    }
-  ]
+  "id": "lvnhPaZOlx4Fbowi",
+  "tags": []
 }

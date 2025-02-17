@@ -28,21 +28,29 @@ Why this is interesting –
 - **n8n**: Install a self-hosted n8n on your system. You can follow the instructions from the [n8n website](https://docs.n8n.io/hosting/),
 - **Nostrobots**: Install [Nostrobots Community Nodes](https://github.com/ocknamo/n8n-nodes-nostrobots/tree/main) by [Ocknamo](https://njump.me/npub1y6aja0kkc4fdvuxgqjcdv4fx0v7xv2epuqnddey2eyaxquznp9vq0tp75l) with instructions from the [n8n website](https://docs.n8n.io/integrations/community-nodes/installation/) which adds Nostr tools to your n8n isntance,
 - **Add workflows from Github to n8n**: Add the five workflows to your n8n. 1. From Github copy the URL for the Raw .json ([example](https://github.com/r0d8lsh0p/n8n-AI-agent-DVM-MCP-client/raw/refs/heads/main/DVMCP_Agent_Example_v1_0.json)), 2. In n8n create a new workflow, then click "..." and "Import from URL",
-- **Credentials**: Add the credentials for an OpenAI API key (or other LLM), Nostr Private Key (Nsec), Postgresql/Supabase credentials,
+- **Credentials**: Add the credentials for an OpenAI API (or other LLM), SerpAPI, Nostr Private Key (Nsec), Postgresql/Supabase,
 - **Settings**: Workflow variables set in the Set Variables Node: Assistant Name, Assistant Npub, Nostr Relays, User Localisation.
 
 If you do not have a Nostr private key, you can generate one at [NostrTool.com](https://nostrtool.com/).
 
-## Component Workflows
+### Component Workflows
 
-Use the main workflow ("DVMCP Agent Example") together with the four Tools workflows supplied –
+Use the main workflow ("DVMCP Agent Example v1.0") together with the four Tools workflows supplied –
 
-- Find Nostr DVMCP Servers
-- Post Nostr DVMCP Server Query
-- Wait
-- Read Nostr DVMCP Server Response
+- AI Tool – Find Nostr DVMCP Servers
+- AI Tool – Post Nostr DVMCP Server Query
+- AI Tool – Wait
+- AI Tool – Read Nostr DVMCP Server Response
 
-The Agent is built to use these tools in sequence to satisfy user needs. An extract from its system prompt is illustrative:
+### Initial Setup on Install
+
+- The Tools Agent must connect to its Workflow Tools,
+- On initial install the agent may need to be manually reconnected to each of the tools workflows in order to access the correctly. To do so, open the DVMCP Agent Example v1.0 and click each tool's node to connect the correct subworkflow from the database,
+- The Credentials must be entered in the DVMCP Agent Example v1.0 workflow, and also in the Post Nostr DVMCP Server Query subworkflow.
+
+## How it Works
+
+The Agent is prompted to use its tools in sequence to satisfy user needs. An extract from its system prompt is illustrative:
 
 ```text
 **Tips for DVM Use**
