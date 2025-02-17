@@ -1,0 +1,178 @@
+{
+  "name": "AI Tool – Post Nostr DVMCP Server Query",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a991a3e2-64bf-440c-a556-b190577d8167",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        740,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.query }}",
+        "options": {}
+      },
+      "id": "6388f178-2b26-452d-a3dd-2a76f6b9fae0",
+      "name": "Convert JSON",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "965b4cfe-fb81-44cc-8571-91db09aa9142",
+              "name": "relays",
+              "value": "wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol,wss://relay.nostrdvm.com",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "b60e7c46-5eed-49b4-a208-80aa75cd5dc1",
+      "name": "Set Relays",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1160,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "content": "={{ JSON.stringify($json.content) }}",
+        "kind": 5910,
+        "tags": "={{ JSON.stringify($json.tags) }}",
+        "relay": "={{ $json.relays }}"
+      },
+      "id": "8a813afd-fba1-4a86-b5af-5071610e91a9",
+      "name": "Post Kind 5910 Query",
+      "type": "n8n-nodes-nostrobots.nostrobots",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        480
+      ],
+      "credentials": {
+        "nostrobotsApi": {
+          "id": "6yX38eeRXkrvTOXv",
+          "name": "Nostr Nsec for Jonny (AI Assistant)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response",
+        "options": {}
+      },
+      "id": "8af99b15-c694-4009-9a9a-1acd9292f71b",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        480
+      ]
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": "{\"content\": { \"name\": \"get-crypto-price\", \"parameters\": { \"symbol\": \"BTC\" } }, \"kind\": 5910, \"tags\": [ [\"c\", \"execute-tool\"], [\"p\", \"9799dbb86f821c9f3cf44f0afd82d979839c185313487dbc2fa93a015a539b58\"] ]}"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Convert JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert JSON": {
+      "main": [
+        [
+          {
+            "node": "Set Relays",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Relays": {
+      "main": [
+        [
+          {
+            "node": "Post Kind 5910 Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Kind 5910 Query": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c998d0b1-b900-40e3-af1c-62ebb481684c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "116b49d6f3394f8a5d690ef016c12ee9efff737700b050bfcafac43155fb279c"
+  },
+  "id": "LyjEXXfQTnABgJsb",
+  "tags": [
+    {
+      "createdAt": "2025-01-16T05:24:37.598Z",
+      "updatedAt": "2025-01-16T05:24:37.598Z",
+      "id": "J7nZF3KKJibJtOn6",
+      "name": "AI"
+    },
+    {
+      "createdAt": "2024-12-11T03:04:40.706Z",
+      "updatedAt": "2024-12-11T03:04:40.706Z",
+      "id": "Mlkk6z6n2UOLQ9i6",
+      "name": "Current"
+    },
+    {
+      "createdAt": "2025-02-16T22:26:34.179Z",
+      "updatedAt": "2025-02-16T22:26:39.882Z",
+      "id": "NKf5rvH7Iyf0COto",
+      "name": "DVM"
+    }
+  ]
+}

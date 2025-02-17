@@ -1,0 +1,662 @@
+{
+  "name": "DVMCP Agent Example v1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12cce8a3-3306-4e99-87b1-dc9d1040cfdc",
+              "name": "assistantName",
+              "value": "Jonny",
+              "type": "string"
+            },
+            {
+              "id": "bfeb31e8-74c7-467f-8a9c-e539714db14e",
+              "name": "assistantNpub",
+              "value": "npub1ahjpx53ewavp23g5zj9jgyfrpr8djmgjzg5mpe4xd0z69dqvq0kq2lf353",
+              "type": "string"
+            },
+            {
+              "id": "53d52515-892f-4221-86a3-e691e9d857a2",
+              "name": "relays",
+              "value": "wss://relay.damus.io,wss://relay.primal.net,wss://relay.nostr.band,wss://relay.nostrdvm.com",
+              "type": "string"
+            },
+            {
+              "id": "d5ca7739-91cf-4bf1-92c9-ff47c25dfa19",
+              "name": "localisation",
+              "value": "Sydney, Australia",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "18092842-7875-4afc-a0ef-389903fed640",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [4120, -1260]
+    },
+    {
+      "parameters": {
+        "operation": "transformKey",
+        "relayhints": "={{ $json.relays }}",
+        "transformTo": "hexpubkey",
+        "transformInput": "={{ $json.assistantNpub }}"
+      },
+      "id": "e292e332-9a14-4c82-a483-bcbc85cb7027",
+      "name": "Transform Assistant Npub",
+      "type": "n8n-nodes-nostrobots.nostrobotsutils",
+      "typeVersion": 1,
+      "position": [4420, -1260]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "45806dd9-2e88-4834-9b90-5569fc5da0c0",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [3760, -1180],
+      "webhookId": "fc8f6baf-f5cf-4952-a011-56de820962c2"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "0c8b5c57-854e-4daa-9f9c-04d8fb686ddb",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [4120, -700],
+      "credentials": {
+        "openAiApi": {
+          "id": "6IgmhcTJzImWKOfe",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "92179680-fab8-4058-8162-2d714404e56d",
+      "name": "Search Engine",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [4560, -700],
+      "credentials": {
+        "serpApi": {
+          "id": "0eb5Kdvm7Cwqz61e",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "b22ad0d0-5c01-476d-a4ee-1cc2a13a3c34",
+      "name": "Calculator",
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [4720, -700]
+    },
+    {
+      "parameters": {
+        "name": "findNostrDVMCP",
+        "description": "=This tool queries Nostr for tools provided by Model Context Protocol (MCP) servers. These are surfaced by Data Vending Machines (DVMs). They are declared as available with a NIP-89 event of kind 31990 with #k tag of 5910.\n\nThis tool allows you to read NIP-89 declarations in order to find what tools are available.\n\nThe tool accepts no parameters.\n\n**Tips for DVM Use**\n\n- If a User requests something where you do not have a tool, query for DVM MCP server tools, and ask the User if you should use the tool.\n\n- If a User requests to use a tool, follow these steps in sequence\n1) post your request to the MCP server\n2) wait for 15 seconds\n3) read the response from the MCP server\n4) if there is no response from the MCP server and less than 45 seconds have passed –\nThen go back to step 2 and repeat.\nElse continue.\n5) perform any final steps or required localisation (e.g. query forex and convert USD to local currency)",
+        "workflowId": {
+          "__rl": true,
+          "value": "rQ0rJszl0YHO1L5J",
+          "mode": "list",
+          "cachedResultName": "AI Tool – Find Nostr DVMCP Server"
+        }
+      },
+      "id": "0a19492f-172c-4efe-96c4-7736c6c9dab6",
+      "name": "Find DVMCP Tools",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [5040, -700]
+    },
+    {
+      "parameters": {
+        "name": "postQueryNostrDVMCP",
+        "description": "=Posts a request to use an Model Context Protocol (MCP) server surfaced over Nostr as a Data Vending Machine (DVM).\n\nUse tools in sequence\n- FindNostrDVMCPTool to find server query syntax\n- PostNostrDVMCPQueryTool to request server tool use\n- ReadNostrDVMCPResponseTool to read server response\n\n```\n{\n  \"content\": {\n    \"name\": \"tool name\",\n    \"parameters\": {\n      \"parameter1\": \"value1\",\n      \"parameter2\": \"value2\"\n    }\n  },\n  \"kind\": 5910,\n  \"tags\": [\n    [\"c\", \"execute-tool\"],\n    [\"p\", \"pubkey of server\"]\n  ]\n}\n```\n\nFor example:\n\n```\n{\n  \"content\": {\n    \"name\": \"get-crypto-price\",\n    \"parameters\": {\n      \"symbol\": \"ETH\"\n    }\n  },\n  \"kind\": 5910,\n  \"tags\": [\n    [\"c\", \"execute-tool\"],\n    [\"p\", \"85a319...71d36a\"]\n  ]\n}\n```\n\nUsage tips. Specify:\n\n- for the server `[\"p\", \"85a319...71d36a\"]`\n- a request `\"kind\": 5910`\n- to execute tool `[\"c\", \"execute-tool\"]`\n- with `\"name\": \"tool name\",`\n- with parameters `\"parameters\": { \"parameter1\": \"value1\" }`",
+        "workflowId": {
+          "__rl": true,
+          "value": "LyjEXXfQTnABgJsb",
+          "mode": "list",
+          "cachedResultName": "AI Tool – Post Nostr DVMCP Server Query"
+        }
+      },
+      "id": "ad7b6e46-4dcd-4408-aeae-9851298dcf33",
+      "name": "Post Query to DVMCP Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [5200, -700]
+    },
+    {
+      "parameters": {
+        "name": "ReadNostrDVMCPResponseTool",
+        "description": "=Reads a Response fom a Model Context Protocol (MCP) server surfaced over Nostr as a Data Vending Machine (DVM).\n\nUse tools in sequence\n- FindNostrDVMCPTool to find server query syntax\n- PostNostrDVMCPQueryTool to request server tool use\n- ReadNostrDVMCPResponseTool to read server response\n\n```\n{\n  \"kinds\":[6910,7000],\n  \"#e\":[\"the eventId of your PostNostrDVMCPQueryTool response\"]\n}\n```\n\nFor example:\n\n```\n{\n  \"kinds\":[6910,7000],\n  \"#e\":[\"41619f...382f96\"]\n}\n```\n\nResponse kinds:\n\n- 6910 is success, with response as `content`\n- 7000 is for other messages, such as\n-- status updates\n-- errors\n-- requests for further information\n\nUsage tips:\n\n- for the query `\"#e\":[\"41619f...382f96\"]`\n\nIn response to kind 7000 notes, you may:\n\n- wait and try again with ReadNostrDVMCPResponseTool\n- vary query and try again with PostNostrDVMCPQueryTool\n- inform the user",
+        "workflowId": {
+          "__rl": true,
+          "value": "2lt2kqZMvjtjSrXS",
+          "mode": "list",
+          "cachedResultName": "AI Tool – Read Nostr DVMCP Response"
+        }
+      },
+      "id": "38bdd9ae-9313-4848-b485-d3b74bc3fea1",
+      "name": "Read Response from DVMCP Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [5280, -540]
+    },
+    {
+      "parameters": {
+        "name": "waitTool",
+        "description": "=Use this tool to wait between using other tools.\n\nE.g. query this tool after Posting a Nostr DVM MCP Query, and prior to Reading a Nostr DVM MCP Response, in order to give the MCP Server time to respond.\n\nQuery the tool with the number of seconds you would like to wait.\n\nE.g. `{ \"query\":5 }` will wait 5 seconds.\n\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "VhO1zPQKxfJckTOr",
+          "mode": "list",
+          "cachedResultName": "AI Tool – Wait"
+        }
+      },
+      "id": "2edb31bb-9601-49c2-b99b-1c2e8791a136",
+      "name": "Wait",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [5120, -540]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"anyOf\": [\n    {\n      \"type\": \"object\",\n      \"properties\": {\n        \"message\": { \"type\": \"string\" },\n        \"memory\": { \"type\": \"string\" }\n      },\n      \"required\": [\"message\", \"memory\"],\n      \"additionalProperties\": false\n    },\n    {\n      \"type\": \"object\",\n      \"properties\": {\n        \"output\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"message\": { \"type\": \"string\" },\n            \"memory\": { \"type\": \"string\" }\n          },\n          \"required\": [\"message\", \"memory\"],\n          \"additionalProperties\": false\n        }\n      },\n      \"required\": [\"output\"],\n      \"additionalProperties\": false\n    }\n  ]\n}\n"
+      },
+      "id": "10a874a1-457c-4bd6-9321-3db1ab25b2d8",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [5820, -540]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ed996b6f-ee1f-4192-9649-4678a3a6f922",
+              "name": "sessionId",
+              "value": "={{ $('Set Variables').item.json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "558f965e-132f-447c-8710-32795ca3d702",
+              "name": "action",
+              "value": "={{ $('Set Variables').item.json.action }}",
+              "type": "string"
+            },
+            {
+              "id": "76de89a6-3ea5-423b-bca3-872b061f58ef",
+              "name": "chatInput",
+              "value": "={{ $('Set Variables').item.json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "a52ed2fa-daf2-4668-a972-3d3944bfbeb3",
+              "name": "ownerName",
+              "value": "={{ $('Set Variables').item.json.ownerName }}",
+              "type": "string"
+            },
+            {
+              "id": "90ad7bdf-0672-4b6b-be2b-ae54584eac71",
+              "name": "ownerNpub",
+              "value": "={{ $('Set Variables').item.json.ownerNpub }}",
+              "type": "string"
+            },
+            {
+              "id": "c7fae65c-7f6a-4d7d-8cc4-90d23d508b48",
+              "name": "ownerPubkey",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "baa34736-10a7-4474-b06d-ae123e566b6f",
+              "name": "assistantName",
+              "value": "={{ $('Set Variables').item.json.assistantName }}",
+              "type": "string"
+            },
+            {
+              "id": "41e51d07-a847-4f9d-80b7-7ecd39b6d8ec",
+              "name": "assistantNpub",
+              "value": "={{ $('Set Variables').item.json.assistantNpub }}",
+              "type": "string"
+            },
+            {
+              "id": "7faf9b21-5df1-49af-8843-48a218c1c13f",
+              "name": "assistantPubkey",
+              "value": "={{ $('Transform Assistant Npub').first().json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "e2055e5d-9727-48d0-8e31-603101c72384",
+              "name": "relays",
+              "value": "={{ $('Set Variables').item.json.relays }}",
+              "type": "string"
+            },
+            {
+              "id": "f785bbc4-4956-443f-acb9-ca6c11275e39",
+              "name": "localisation",
+              "value": "={{ $('Set Variables').item.json.localisation }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "16a73cee-2965-4456-9e13-53d391feedf0",
+      "name": "Finalise Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [4600, -1260]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39a90d68-d582-47eb-8c6d-273a28c2f666",
+              "name": "output",
+              "value": "={{ $('AI Agent').item.json.output.message || $('AI Agent').item.json.output.output.message }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f452092e-8c36-49a5-85db-1b4d751c5b95",
+      "name": "Set Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [5300, -1260]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Set Variables').item.json.sessionId }}"
+      },
+      "id": "49836b24-52c0-460d-9461-234f85161371",
+      "name": "Supabase Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.1,
+      "position": [5560, -700],
+      "credentials": {
+        "postgres": {
+          "id": "w4X3cxc0ZlLqCVnk",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "62a5eefe-47a9-43b0-a31f-454a0bb3d58a",
+      "name": "OpenAI to Parse Output",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [5660, -540],
+      "credentials": {
+        "openAiApi": {
+          "id": "6IgmhcTJzImWKOfe",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Language Model\nThe model should be interchangeable. This workflow example is tested with Chat GPT 4o.\n\nIf changing model, test memory, tools and structured output work as expected.",
+        "height": 611.5771043771053,
+        "width": 453.7643097643098
+      },
+      "id": "e45888ef-2d6a-44fb-a486-8d4bd3083e66",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [3940, -960]
+    },
+    {
+      "parameters": {
+        "content": "## Basic Tools\nThese basic tools are helpful alongside the DVM MCP servers, for example to look up an exchange rate and perform a calculation to local currency.",
+        "height": 613.5811447811463,
+        "width": 457.10437710437714,
+        "color": 2
+      },
+      "id": "44405bb1-bd4b-49cb-bc36-797f42fd31bd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [4460, -960]
+    },
+    {
+      "parameters": {
+        "content": "## DVM MCP Tools\nThese tools allow the agent to access MCP servers over the Nostr network as Data Vending Machines. The Agent will read the network for available MCP servers, then post a job request to a server, then wait for and read a response.\n\nThis method allows your Agent to access MCP tools that it does not otherwise have access to, and use them as if they are installed even though they aren't.",
+        "height": 615.9191919191926,
+        "width": 457.10437710437714,
+        "color": 6
+      },
+      "id": "efc5ad42-6a82-4c47-8369-85e7979037a2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [4980, -960]
+    },
+    {
+      "parameters": {
+        "content": "## Memory\nWe enhance the memory by enforcing a structured output of \"message\" and \"memory\" and save both to a Postgresql memory database.\n\n\"memory\" allows us to store revelent variables, such as the eventId of a request to a DVM, even if they are not passed in a message to the User.",
+        "height": 615.9191919191926,
+        "width": 457.10437710437714,
+        "color": 5
+      },
+      "id": "d883f23e-69a9-4def-abcc-be084001ea25",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [5500, -960]
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=The datetime is {{ new Date() }}. This is UTC and MUST be localised to {{ $json.localisation }} local time for the User.\n\nYou are {{ $('Finalise Input').item.json.assistantName }}, a large language model. Call yourself by your name. You fulfil the role of Assistant.\n\n**Response Format**\n\nYou MUST format your output as JSON in the schema defined below. The schema includes \"message\" and \"memory\".\n\n- Use \"message\" to give your message to the User. You must always include a message.\n- Use \"memory\" to remember every relevant eventId and pubkey you encounter. In using this field include each value in full and a description for yourself to help you remember.\n\nJSON must adhere to this schema:\n\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"message\": {\n      \"type\": \"string\"\n    },\n    \"memory\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\"message\"],\n  \"additionalProperties\": false\n}\n\nA valid JSON response (Success):\n\n{\n  \"message\": \"Message to user.\",\n  \"memory\": \"<pubkey1> is the pubkey of <username> which is relevant for <reason for remembering>, and <eventId1> is the eventId of <event message> which is relevant for <reason for remembering>.\"\n}\n\nAn invalid JSON response (Failure):\n\n{\n  \"output\": {\n    \"message\": \"Message to user.\",\n    \"memory\": \"<pubkey1> is the pubkey of <username> which is relevant for <reason for remembering>, and <eventId1> is the eventId of <event message> which is relevant for <reason for remembering>.\"\n  }\n}\n\nTips for use of JSON:\n\n- DO NOT wrap your response in \"output\"\n- You should use memory extensively to perform better at your role\n- If you post a query to a DVM on Nostr, the eventId of that post is a relevant eventId\n- If you interact with a DVM on Nostr, the pubkey of the DVM is a relevant pubkey\n- If you interact with other pubkeys and events, they may also be relevant\n- Other pubkeys and eventIds may also be relevant\n- If there is no relevant pubkey or eventId at all then memory may be blank\n- You MUST NOT shorten or truncate any key or id as it will cause it to fail\n\nYour JSON response MUST be a single flat object with only the keys \"message\" and \"memory\" – do not wrap these in any additional objects such as \"output\".\n\n**About your role**\n\nAssistant can assist with a wide range of tasks, answer questions and provide explanations on a range of topics. \n\nAssistant can generate human-like text based on the input you receive and engage in natural-sounding conversations that are coherent and relevant.\n\nAssistant must never fabricate data, IDs, or links. \n\nAssistant's role is to provide accurate, helpful information based on what you know or can verify using the tools at your disposal.\n\nAssistant can access and use tools, including that assistant can access tools made available through Model Context Protocol (MCP) servers, where those servers hare made available to Assistant via the Nostr network as Data Vending Machines (DVMs).\n\nAssistant has a profile on the Nostr network. On Nostr, users are identified by public keys which are in one of two formats, the human-readable `Npub` (bech32 format), or the machine-readable `Pubkey` (hex format). When speaking with humans, use the `Npub` format if available.\n\nAssistant is identified by Npub {{ $('Finalise Input').item.json.assistantNpub }} or Pubkey {{ $('Finalise Input').item.json.assistantPubkey }}. \n\n**Invoked by Workflow**\n\nAssistant is part of an n8n workflow and may be invoked:\n\n1 - If Assistant's User initiates a chat in n8n, or Telegram, or other chat interfaces,\n\n2 - Other situations, as defined by Assistant's User from time to time.\n\nWhen Assistant is invoked it will be given a message as a `chatInput` and it is Assistant's job to reply using the JSON format given above.\n\nTypically the workflow which initiates the input for Assistant will also handle its output. E.g. if invoked by webhook from a workflow, Assistant's output will be processed by the same workflow.\n\n**Memory**\n\nAssistant may be given a message history including older messages in a conversation. When so given, Assistant should always use this context and acknowledge it in the reply where appropriate. Assistant should reply to the latest message and use the older messages to inform context. Older messages may include messages previously sent by Assistant.\n\n**Tools**\n\nAssistant has the following tools to assist you in providing great replies.\n\n1 - A Postgres Memory of old messages which you can use to further inform the context of your replies.\n\n2 - A Search Engine to query the internet for information. Assistant's replies can include content from websites and links to websites, including current information, such as news headlines, weather reports, and exchange rates. \n\n3 – A Calculator. \n\n4 - A Set of Nostr DVM MCP Tools to access Model Context Protocol (MCP) Server tools hosted online and shared with you via Data Vending Machines (DVMs) over the Nostr network.\n\n**Tips**\n\n- Where a tool provides a $ amount without specifying whether it is USD, assume it is USD, and it needs to be converted to the User's local currency. Use Search Engine to find Forex Rates and make an accurate foreign exchange conversion.\n\n- Where useful, Assistant should include links to Nostr events using the `http://njump.me/` URL prefix e.g. `[more](http://njump.me/eventId)`.\n\n- Assistant may need use tools in sequences to achieve User objectives.\n\n**Tips for DVM Use**\n\n- If your User requests something where you would need a tool, but do not have a tool, query for DVM MCP server tools on Nostr, and where you find a relevant tool, ask your User if you should use it.\n\n- If your User requests to use a tool, follow these steps in sequence:\n\n1) post your request to the MCP server\n2) wait for 15 seconds\n3) read the response from the MCP server\n4) if there is no response from the MCP server and less than 45 seconds have passed –\nThen go back to step 2 and repeat.\nElse continue.\n5) perform any final steps or required localisation (e.g. query forex and convert USD to local currency)\n\n- If there is a kind 7000 response from the MCP server, it may be a progress update, or error, or a request for further information. Consider if you can resolve this yourself and then post a new request. Alternatively, inform your User.\n\n**Localisation**\n\nWhen Assistant responds, you MUST localise replies to {{ $('Finalise Input').item.json.localisation }} localisation. When localising, consider to use the correct language, currency, timezone, date-time format, temperature, and distance. Localisation should avoid over use of local slang or colloquialisms. \n\nFor example, if the selected localisation was \"Sydney, Australia\", then Assistant MUST use Australian English, AUD currency (including to convert USD into AUD at current exchange rates), AEST or AEDT timezone, Day Month Year date format, Celsius rather than Fahrenheit, Kilometres rather than Miles, and avoid over use of slang like \"ripper, yarn\".",
+          "returnIntermediateSteps": true
+        }
+      },
+      "id": "af3412fb-24c4-4dff-a568-08121d65e500",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [4820, -1260]
+    },
+    {
+      "parameters": {
+        "content": "## Configuration\n\nPlease set variables inside this node. \n\n- Assistant Name\n- Assistant Npub\n- Nostr Relays\n- User Localisation",
+        "height": 512,
+        "width": 316,
+        "color": 7
+      },
+      "id": "83243c98-358e-4c85-a45c-f3f5fe659992",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [4020, -1520]
+    },
+    {
+      "parameters": {
+        "content": "## Triggers\n\n- Chat trigger for use within n8n\n- Workflow trigger allows you to attach a trigger workflow e.g. to use Telegram or OpenWebUI as a front-end",
+        "height": 511.91817685401793,
+        "width": 315.5258187768896,
+        "color": 7
+      },
+      "id": "8eb76f87-29ec-42f4-bbaa-25dd96e73391",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [3660, -1520]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [3760, -1340],
+      "id": "c19897cf-9492-4a4c-9e34-2b354f62d5c7",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [5660, -700],
+      "id": "e6880110-df59-4a95-bb4c-dbe44d95b7d6",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "content": "## \"DVMCP\" (DVM MCP) Agent Example v1.0\n\nThis workflow is an AI Agent which is a user of Model Context Protocol (MCP) Server Tools served as Data Vending Machines (DVM) over the Nostr network –\n\nThe Agent, given a prompt which requires a tool –\n\n- Will query the network for available tools it can use,\n- Post requests to those tools over the network,\n- Wait as required for the tool response,\n- Read responses from those tools, and reply to the User.\n\n\nThis Agent is designed to be used with MCP Server Tools made available over the Nostr network.\n\n## Component Workflows\n\nUse this workflow (DVMCP Agent Example) together with the four Tools workflows supplied – \n\n- Find Nostr DVMCP Servers\n- Post Nostr DVMCP Server Query\n- Wait\n- Read Nostr DVMCP Server Response\n\n\nYou must have all five workflows installed and connected.\n\nYou may also want to add additional Trigger workflows to access this AI Agent through Telegram, OpenWebUI, or another front-end of your choice.\n\n## Requirements\n\nTo use this workflow we need –\n\n- n8n self-hosted,\n- [Nostrobots Community Nodes](https://github.com/ocknamo/n8n-nodes-nostrobots/tree/main), by [Ocknamo](https://njump.me/npub1y6aja0kkc4fdvuxgqjcdv4fx0v7xv2epuqnddey2eyaxquznp9vq0tp75l), \n- Credentials for N8N: OpenAI API key (or other LLM), Nostr Private Key (Nsec), Postgresql/Supabase credentials,\n- Workflow variables set in the Set Variables Node: Assistant Name, Assistant Npub, Nostr Relays, User Localisation.",
+        "height": 1176,
+        "width": 723,
+        "color": 6
+      },
+      "id": "f77a0c0b-c328-4550-bbae-d41d15390302",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2900, -1520]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Transform Assistant Npub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Assistant Npub": {
+      "main": [
+        [
+          {
+            "node": "Finalise Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Engine": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find DVMCP Tools": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Query to DVMCP Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Response from DVMCP Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finalise Input": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI to Parse Output": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Set Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "accc2456-c08c-4c15-89f1-050fb8d4066a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "116b49d6f3394f8a5d690ef016c12ee9efff737700b050bfcafac43155fb279c"
+  },
+  "id": "3w23XwQy5h4OKIlT",
+  "tags": [
+    {
+      "createdAt": "2025-01-16T05:24:37.598Z",
+      "updatedAt": "2025-01-16T05:24:37.598Z",
+      "id": "J7nZF3KKJibJtOn6",
+      "name": "AI"
+    },
+    {
+      "createdAt": "2024-11-19T03:08:10.445Z",
+      "updatedAt": "2024-11-19T03:08:23.808Z",
+      "id": "egAJeVFA9DrO3YrB",
+      "name": "AI Assistant"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "name": "AI Tool – Wait",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "b7653315-5646-4909-ac00-af27cf1fb084",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{ $json.query }}"
+      },
+      "id": "bab25db4-9b28-49c5-8497-7703e64febf5",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1460,
+        500
+      ],
+      "webhookId": "f18e0a64-380c-4c48-912f-df1bcf1158e8"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response",
+        "options": {}
+      },
+      "id": "dd98cc7c-62c3-4451-9531-578c0d1b170e",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        500
+      ]
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": 5
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "307d89ce-3831-44fa-9dd0-43096abe9e82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "116b49d6f3394f8a5d690ef016c12ee9efff737700b050bfcafac43155fb279c"
+  },
+  "id": "VhO1zPQKxfJckTOr",
+  "tags": [
+    {
+      "createdAt": "2025-01-16T05:24:37.598Z",
+      "updatedAt": "2025-01-16T05:24:37.598Z",
+      "id": "J7nZF3KKJibJtOn6",
+      "name": "AI"
+    },
+    {
+      "createdAt": "2024-12-11T03:04:40.706Z",
+      "updatedAt": "2024-12-11T03:04:40.706Z",
+      "id": "Mlkk6z6n2UOLQ9i6",
+      "name": "Current"
+    },
+    {
+      "createdAt": "2025-02-16T22:26:34.179Z",
+      "updatedAt": "2025-02-16T22:26:39.882Z",
+      "id": "NKf5rvH7Iyf0COto",
+      "name": "DVM"
+    }
+  ]
+}

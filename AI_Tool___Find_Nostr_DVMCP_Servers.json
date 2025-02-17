@@ -1,0 +1,150 @@
+{
+  "name": "AI Tool – Find Nostr DVMCP Servers",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "43f4611a-055d-4fb4-989d-aa936e74078f",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        440,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response",
+        "options": {}
+      },
+      "id": "ca64ec8f-800c-4309-977b-9ce916feb0e5",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "strategy": "rawFilter",
+        "rawFilter": "{\n  \"kinds\":[31990],\n  \"#k\":[\"5910\"]\n}",
+        "from": 90,
+        "relay": "={{ $json.relays }}"
+      },
+      "id": "f870c7ab-45d4-4bdc-ab00-7c1202932928",
+      "name": "Read NIP-89 kind 31990 #k 5910",
+      "type": "n8n-nodes-nostrobots.nostrobotsread",
+      "typeVersion": 1,
+      "position": [
+        900,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "965b4cfe-fb81-44cc-8571-91db09aa9142",
+              "name": "relays",
+              "value": "wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol,wss://relay.nostrdvm.com",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "2a163d9f-48cb-4441-9ec4-e8ce0e518676",
+      "name": "Set Relays",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        140
+      ]
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": "{\"content\": { \"name\": \"get-crypto-price\", \"parameters\": { \"symbol\": \"BTC\" } }, \"kind\": 5910, \"tags\": [ [\"c\", \"execute-tool\"], [\"p\", \"9799dbb86f821c9f3cf44f0afd82d979839c185313487dbc2fa93a015a539b58\"] ]}"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Relays",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read NIP-89 kind 31990 #k 5910": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Relays": {
+      "main": [
+        [
+          {
+            "node": "Read NIP-89 kind 31990 #k 5910",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9e303c25-ac61-4873-889d-9a84747561a1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "116b49d6f3394f8a5d690ef016c12ee9efff737700b050bfcafac43155fb279c"
+  },
+  "id": "rQ0rJszl0YHO1L5J",
+  "tags": [
+    {
+      "createdAt": "2025-01-16T05:24:37.598Z",
+      "updatedAt": "2025-01-16T05:24:37.598Z",
+      "id": "J7nZF3KKJibJtOn6",
+      "name": "AI"
+    },
+    {
+      "createdAt": "2024-12-11T03:04:40.706Z",
+      "updatedAt": "2024-12-11T03:04:40.706Z",
+      "id": "Mlkk6z6n2UOLQ9i6",
+      "name": "Current"
+    },
+    {
+      "createdAt": "2025-02-16T22:26:34.179Z",
+      "updatedAt": "2025-02-16T22:26:39.882Z",
+      "id": "NKf5rvH7Iyf0COto",
+      "name": "DVM"
+    }
+  ]
+}

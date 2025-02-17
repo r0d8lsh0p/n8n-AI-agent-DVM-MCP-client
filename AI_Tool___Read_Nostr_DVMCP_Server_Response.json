@@ -1,0 +1,147 @@
+{
+  "name": "AI Tool – Read Nostr DVMCP Server Response",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3be06537-0490-449d-be77-79dc2b4fd7d1",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        680,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "965b4cfe-fb81-44cc-8571-91db09aa9142",
+              "name": "relays",
+              "value": "wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol,wss://relay.nostrdvm.com",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "97380ccf-f6a2-4f1a-8304-7a5f8b79a0b6",
+      "name": "Set Relays",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        900,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "strategy": "rawFilter",
+        "rawFilter": "={{ $('Execute Workflow Trigger').item.json.query }}",
+        "from": 8,
+        "unit": "hour",
+        "relay": "={{ $json.relays }}"
+      },
+      "id": "e22d6aa8-6fab-46e2-a4f2-1d241eb1a33a",
+      "name": "Query Kind 6910 and 7000 Responses",
+      "type": "n8n-nodes-nostrobots.nostrobotsread",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        460
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response",
+        "options": {}
+      },
+      "id": "17cd52c4-4f2c-43b8-b6dc-01aa6ea8aa35",
+      "name": "Aggregate to Response",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        460
+      ]
+    }
+  ],
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "json": {
+          "query": "{\"kinds\":[6910,7000], \"#p\":[\"08a76f1048a3460f3458f0cd87db544b416771d1188c840efaa729d0d616b792\"], \"#e\":[\"19f7efd70667558d551516379d05e6932fd349edace00e28878223214e00676e\"]}"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Relays",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Relays": {
+      "main": [
+        [
+          {
+            "node": "Query Kind 6910 and 7000 Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Kind 6910 and 7000 Responses": {
+      "main": [
+        [
+          {
+            "node": "Aggregate to Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9898b8a4-281a-4c92-a79b-e4c4a91072d8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "116b49d6f3394f8a5d690ef016c12ee9efff737700b050bfcafac43155fb279c"
+  },
+  "id": "2lt2kqZMvjtjSrXS",
+  "tags": [
+    {
+      "createdAt": "2025-01-16T05:24:37.598Z",
+      "updatedAt": "2025-01-16T05:24:37.598Z",
+      "id": "J7nZF3KKJibJtOn6",
+      "name": "AI"
+    },
+    {
+      "createdAt": "2024-12-11T03:04:40.706Z",
+      "updatedAt": "2024-12-11T03:04:40.706Z",
+      "id": "Mlkk6z6n2UOLQ9i6",
+      "name": "Current"
+    },
+    {
+      "name": "DVM",
+      "id": "NKf5rvH7Iyf0COto",
+      "createdAt": "2025-02-16T22:26:34.179Z",
+      "updatedAt": "2025-02-16T22:26:39.882Z"
+    }
+  ]
+}
