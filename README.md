@@ -35,7 +35,11 @@ If you do not have a Nostr private key, you can generate one at [NostrTool.com](
 
 ### Component Workflows
 
-Use the main workflow ("DVMCP Agent Example v1.0") together with the four Tools workflows supplied –
+![Screenshot of DVMCP Agent v1.0 Workflow](Screenshots/DVMCP-Agent-v1-0-Workflow.png)
+
+The main workflow is DVMCP Agent Example v1.0.
+
+Use this together with the four Tools Subworkflows –
 
 - AI Tool – Find Nostr DVMCP Servers
 - AI Tool – Post Nostr DVMCP Server Query
@@ -44,8 +48,8 @@ Use the main workflow ("DVMCP Agent Example v1.0") together with the four Tools 
 
 ### Initial Setup on Install
 
-- The Tools Agent must connect to its Workflow Tools,
-- On initial install the agent may need to be manually reconnected to each of the tools workflows in order to access the correctly. To do so, open the DVMCP Agent Example v1.0 and click each tool's node to connect the correct subworkflow from the database,
+- The DVMCP Agent must connect to its Tools Subworkflows,
+- On initial install you may need to manually reconnect these. To do so, open the DVMCP Agent Example v1.0 and click each tool's node to select the correct subworkflow from the database,
 - The Credentials must be entered in the DVMCP Agent Example v1.0 workflow, and also in the Post Nostr DVMCP Server Query subworkflow.
 
 ## How it Works
